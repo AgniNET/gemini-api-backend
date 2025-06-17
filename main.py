@@ -1,12 +1,20 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
 
-# ❗ API key directly in code (ONLY for testing/demo, NOT recommended for production)
+app = FastAPI()
+
+# ✅ Allow all origins for testing (you can restrict later)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 GEMINI_API_KEY = "AIzaSyCGpTDg6vccUx1D6qr36aPvrrtS5VRuv_U"
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
-
-app = FastAPI()
 
 class PromptRequest(BaseModel):
     prompt: str
@@ -17,9 +25,7 @@ def root():
 
 @app.post("/ask")
 def ask_gemini(data: PromptRequest):
-    headers = {
-        "Content-Type": "application/json"
-    }
+    headers = {"Content-Type": "application/json"}
     payload = {
         "contents": [
             {
